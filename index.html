@@ -135,16 +135,8 @@
 
       // zufalls Zahlgenerator
       const zahlGenerator = () => Math.floor(Math.random() * 49) + 1;
-
-      const bubbleSort = (array) => {
-        return array.sort((n1, n2) => {
-          if (Number(n1) < Number(n2)) {
-            return -1;
-          } else {
-            return 1;
-          }
-        });
-      };
+      // Bubble sort sortierung
+      const bubbleSort = (array) => array.sort((n1, n2) => (Number(n1) < Number(n2) ? -1 : 1));
 
       // liefert eine zahl von 1 - 49
       // zahl darf sich nicht wiederholen
@@ -160,8 +152,8 @@
       };
 
       const lottoAuswertung = () => {
-        lottoZahlen = [];
-        treffer = 0; // verzeichnet die treffer
+        lottoZahlen = []; // zurücksetzen der lotto ziehung
+        treffer = 0; // verzeichnet die treffer pro ziehung
         const lottoBlock = document.querySelector('.lotto');
         let html = '';
 
@@ -250,7 +242,7 @@
         if (meineZahlen.length === 7) {
           lottoAuswertung();
         } else {
-          alert('Ihre auswahl ist nicht vollständig.');
+          alert('Ihre auswahl ist nicht vollständig. Bitte wählen Sie 7 Zahlen aus.');
         }
       });
 
@@ -269,11 +261,11 @@
       });
 
       buttonModalOpen.addEventListener('click', () => {
-        modal.classList.remove('hidden');
+        modal.classList.remove('hidden'); // entfernt die css class hidden.
       });
 
       buttonModalClose.addEventListener('click', () => {
-        modal.classList.add('hidden');
+        modal.classList.add('hidden'); // fügt eine css class hidden zu.
       });
 
       formSimulationEl.addEventListener('submit', (evt) => {
@@ -284,17 +276,16 @@
         if (meineZahlen.length < 7) {
           alert('Bitte wählen Sie Ihre zahlen.');
         } else {
-          let SimulationHistory = []; // hier fassen wie alle versuche auf
+          let SimulationHistory = []; // hier fassen wie alle lotto versuche auf.
           SimulationHistory['meine'] = meineZahlen;
+          SimulationHistory['simulation'] = []; // definition
 
-          simulationWrapper.classList.remove('hidden'); // entfernt die classe hidden
+          simulationWrapper.classList.remove('hidden'); // entfernt die classe classe hidden
 
           const simulationResult = document.querySelector('#simulationResult');
           const counter = document.querySelector('input[name="versuche"]');
           const fixNumberBlock = document.querySelector('.fixNumber');
           let html = '';
-
-          console.log(meineZahlen);
 
           fixNumberBlock.innerHTML = bubbleSort(meineZahlen)
             .map((number) => {
@@ -314,12 +305,12 @@
             tempSimulationHistory.push(lottoZahlen);
             tempSimulationHistory.push(treffer);
 
-            //SimulationHistory['simulation'].push(tempSimulationHistory);
+            SimulationHistory['simulation'].push(tempSimulationHistory);
           }
 
-          simulationResult.innerHTML = html;
+          simulationResult.innerHTML = html; // fügt generierten html code ein.
 
-          //console.log(SimulationHistory);
+          console.log(SimulationHistory);
         }
       });
     </script>
