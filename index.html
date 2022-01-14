@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
     <style>
       body {
         font-family: 'Rubik', sans-serif;
@@ -102,6 +104,10 @@
             <div class="sticky top-0 bg-gray-100 py-7">
               <h2 class="text-center text-2xl text-indigo-500 my-7 font-bold">Simulations ausgabe</h2>
 
+              <div class="">
+                <canvas id="myChart" class="w-full"></canvas>
+              </div>
+
               <div class="flex justify-center gap-4 my-7 fixNumber">
                 <!-- <div class="w-16 h-16 bg-blue-900 text-white flex justify-center items-center shadow text-2xl">6</div> -->
               </div>
@@ -119,10 +125,12 @@
     </main>
     <script>
       'use strict';
-
+      let myLinieChart = null;
       let meineZahlen = []; // lotto werte die ich ausgewählt habe.
       let lottoZahlen = []; // zahlen die von der Funktion generiert wurde.
       let treffer = 0;
+
+      let totalTreffer = [0, 0, 0, 0, 0, 0, 0, 0];
 
       const simulationWrapper = document.querySelector('#simulationWrapper');
       const buttonAction = document.querySelector('.buttonAction');
@@ -137,6 +145,11 @@
       const zahlGenerator = () => Math.floor(Math.random() * 49) + 1;
       // Bubble sort sortierung
       const bubbleSort = (array) => array.sort((n1, n2) => (Number(n1) < Number(n2) ? -1 : 1));
+
+      // erhöte die einzelnen treffer
+      const chartsCounterFunction = (treffer) => {
+        totalTreffer[treffer]++;
+      };
 
       // liefert eine zahl von 1 - 49
       // zahl darf sich nicht wiederholen
@@ -175,7 +188,7 @@
             }
           }
         }
-
+        chartsCounterFunction(treffer); // funktions aufruf
         lottoBlock.innerHTML = html;
       };
 
@@ -276,6 +289,10 @@
         if (meineZahlen.length < 7) {
           alert('Bitte wählen Sie Ihre zahlen.');
         } else {
+          // ab hier startet die Simulation
+          let chart = document.querySelector('#myChart');
+          totalTreffer = '';
+          totalTreffer = [0, 0, 0, 0, 0, 0, 0, 0]; // reset
           let SimulationHistory = []; // hier fassen wie alle lotto versuche auf.
           SimulationHistory['meine'] = meineZahlen;
           SimulationHistory['simulation'] = []; // definition
@@ -285,6 +302,7 @@
           const simulationResult = document.querySelector('#simulationResult');
           const counter = document.querySelector('input[name="versuche"]');
           const fixNumberBlock = document.querySelector('.fixNumber');
+
           let html = '';
 
           fixNumberBlock.innerHTML = bubbleSort(meineZahlen)
@@ -298,9 +316,9 @@
             lottoAuswertung(); // startet die auswärtung.
 
             html += `<div class="bg-white rounded-md p-5 shadow">
-                <h3>Treffer: ${treffer}</h3>
-                <p><span class="font-bold text-indigo-500">Gezogenen Zahlen:</span> ${bubbleSort(lottoZahlen).join()}</p>
-              </div>`;
+                     <h3>Treffer: ${treffer}</h3>
+                     <p><span class="font-bold text-indigo-500">Gezogenen Zahlen:</span> ${bubbleSort(lottoZahlen).join()}</p>
+                   </div>`;
 
             tempSimulationHistory.push(lottoZahlen);
             tempSimulationHistory.push(treffer);
@@ -311,6 +329,34 @@
           simulationResult.innerHTML = html; // fügt generierten html code ein.
 
           console.log(SimulationHistory);
+          console.log(totalTreffer);
+
+          var xValues = ['Treffer: 0', 'Treffer: 1', 'Treffer: 2', 'Treffer: 3', 'Treffer: 4', 'Treffer: 5', 'Treffer: 6', 'Treffer: 7'];
+
+          if (myLinieChart != null) {
+            myLinieChart.destroy(); // löscht die linien zeichnug aus vorheriger simulation
+          }
+
+          myLinieChart = new Chart(chart, {
+            type: 'line',
+            data: {
+              labels: xValues,
+              datasets: [
+                {
+                  backgroundColor: 'rgba(30, 58, 138,0.7)',
+                  borderColor: 'rgba(00, 255, 00,0.1)',
+                  data: totalTreffer,
+                },
+              ],
+            },
+            options: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: 'Treffer übersicht',
+              },
+            },
+          });
         }
       });
     </script>
