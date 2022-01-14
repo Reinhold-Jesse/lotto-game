@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lotto spielen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
+
+    <style>
+      body {
+        font-family: 'Rubik', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <main>
+      <div id="modal" class="hidden fixed top-0 right-0 bottom-0 left-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+        <div class="w-96 bg-white rounded-md p-7 shadow">
+          <h2 class="font-bold text-indigo-500 text-2xl">Auto Simulation</h2>
+          <form id="formSimulation">
+            <div class="my-7">
+              <label class="block w-full mb-3 font-bold text-gray-700">Anzahl von Versuchen</label>
+              <input type="number" name="versuche" class="w-full block py-2 px-3 rounded-md bg-indigo-100" autofocus />
+            </div>
+            <div class="flex justify-end gap-4">
+              <button
+                type="button"
+                class="w-64 py-3 rounded-md text-center bg-gray-100 hover:bg-gray-200 transition-all duration-150 ease-in-out shadow text-gray-500 buttonModalClose"
+              >
+                zurück
+              </button>
+              <button
+                type="submit"
+                class="w-64 py-3 rounded-md text-center bg-indigo-500 hover:bg-indigo-600 transition-all duration-150 ease-in-out shadow text-white"
+              >
+                simulieren
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="container mx-auto py-5 py-7">
+        <div class="">
+          <h1 class="text-3xl text-center font-bold my-7">Lottozahlen</h1>
+          <div class="flex justify-center gap-4 lotto">
+            <div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200">
+              <h2 class="text-7xl zahl1">0</h2>
+            </div>
+            <div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200">
+              <h2 class="text-7xl zahl2">0</h2>
+            </div>
+            <div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200">
+              <h2 class="text-7xl zahl3">0</h2>
+            </div>
+            <div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200">
+              <h2 class="text-7xl zahl4">0</h2>
+            </div>
+            <div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200">
+              <h2 class="text-7xl zahl5">0</h2>
+            </div>
+            <div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200">
+              <h2 class="text-7xl zahl6">0</h2>
+            </div>
+            <div
+              class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-blue-900 text-white"
+            >
+              <h2 class="text-7xl superZahl">0</h2>
+            </div>
+          </div>
+          <div class="flex justify-center gap-4 mt-12">
+            <button
+              type="button"
+              class="w-64 py-3 rounded-md text-center bg-green-500 hover:bg-green-700 transition-all duration-150 ease-in-out shadow text-white buttonAction"
+            >
+              neu Ziehung
+            </button>
+            <button
+              type="button"
+              class="w-64 py-3 rounded-md text-center bg-red-500 hover:bg-red-600 transition-all duration-150 ease-in-out shadow text-white buttonRemove"
+            >
+              reset
+            </button>
+
+            <button
+              type="button"
+              class="w-64 py-3 rounded-md text-center bg-indigo-500 hover:bg-indigo-600 transition-all duration-150 ease-in-out shadow text-white buttonModalOpen"
+            >
+              simulieren
+            </button>
+          </div>
+
+          <div class="flex justify-center mt-12">
+            <div class="grid grid-cols-7 gap-2 border p-3 lottoBlock">
+              <!-- <div class="meineZahl w-16 h-16 flex justify-center items-center bg-white cursor-pointer hover:bg-blue-500 shadow">1</div> -->
+            </div>
+          </div>
+
+          <div id="simulationWrapper" class="w-2/4 mx-auto relative hidden">
+            <div class="sticky top-0 bg-gray-100 py-7">
+              <h2 class="text-center text-2xl text-indigo-500 my-7 font-bold">Simulations ausgabe</h2>
+
+              <div class="flex justify-center gap-4 my-7 fixNumber">
+                <!-- <div class="w-16 h-16 bg-blue-900 text-white flex justify-center items-center shadow text-2xl">6</div> -->
+              </div>
+            </div>
+
+            <div id="simulationResult" class="grid grid-rows gap-4 p-7">
+              <!-- <div class="bg-white rounded-md p-5 shadow">
+                <h3>Treffer:</h3>
+                <p><span class="font-bold text-indigo-500">Gezogenen Zahlen:</span></p>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      'use strict';
+
+      let meineZahlen = []; // lotto werte die ich ausgewählt habe.
+      let lottoZahlen = []; // zahlen die von der Funktion generiert wurde.
+      let treffer = 0;
+
+      const simulationWrapper = document.querySelector('#simulationWrapper');
+      const buttonAction = document.querySelector('.buttonAction');
+      const buttonRemove = document.querySelector('.buttonRemove');
+      const buttonModalOpen = document.querySelector('.buttonModalOpen');
+      const buttonModalClose = document.querySelector('.buttonModalClose');
+      const modal = document.querySelector('#modal');
+
+      const formSimulationEl = document.querySelector('#formSimulation');
+
+      // zufalls Zahlgenerator
+      const zahlGenerator = () => Math.floor(Math.random() * 49) + 1;
+
+      const bubbleSort = (array) => {
+        return array.sort((n1, n2) => {
+          if (Number(n1) < Number(n2)) {
+            return -1;
+          } else {
+            return 1;
+          }
+        });
+      };
+
+      // liefert eine zahl von 1 - 49
+      // zahl darf sich nicht wiederholen
+      const lottoZahlGenerator = (recusion = 0) => {
+        const number = zahlGenerator();
+
+        if (lottoZahlen.includes(number)) {
+          // wurde gefunden
+          return lottoZahlGenerator(++recusion); // => funktion ruft sich erneut.
+        }
+        lottoZahlen.push(number);
+        return number;
+      };
+
+      const lottoAuswertung = () => {
+        lottoZahlen = [];
+        treffer = 0; // verzeichnet die treffer
+        const lottoBlock = document.querySelector('.lotto');
+        let html = '';
+
+        for (let i = 0; i <= 6; i++) {
+          const zahl = lottoZahlGenerator();
+
+          if (meineZahlen.indexOf(zahl) !== -1) {
+            // wurde gefunden
+            treffer++; // treffer aufnehmen
+            html += `<div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-green-500"><h2 class="text-7xl">${zahl}</h2></div>`;
+          } else {
+            // wurde nicht gefunden
+            if (i === 6) {
+              // supperzahl ansicht
+              html += `<div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-blue-900 text-white"><h2 class="text-7xl">${zahl}</h2></div>`;
+            } else {
+              // normale ansicht
+              html += `<div class="w-32 bg-white rounded-full w-32 h-32 px-3 py-5 flex justify-center items-center shadow bg-gradient-to-t from-gray-200"><h2 class="text-7xl">${zahl}</h2></div>`;
+            }
+          }
+        }
+
+        lottoBlock.innerHTML = html;
+      };
+
+      // generiert 49 zahlen blöcke in html
+      // und fügt die an die endsprechende stelle.
+      const lottoZahlenBlock = () => {
+        const lottoBlockValue = document.querySelector('.lottoBlock');
+        let html = '';
+        for (let i = 1; i <= 49; i++) {
+          html += `<div class="meineZahl w-16 h-16 flex justify-center items-center bg-white cursor-pointer hover:bg-blue-500 hover:text-white text-2xl shadow">${i}</div>`;
+        }
+        lottoBlockValue.innerHTML = html;
+      };
+
+      const addMeineZahlen = (n) => {
+        // prüft ob die aufwahl in meiner liste gefunden wurde.
+        if (meineZahlen.indexOf(n) !== -1) {
+          // wurde gefunden
+          meineZahlen.splice(meineZahlen.indexOf(n), 1); // entfernt die auswahl aus dem array
+        } else {
+          // wurde nicht gefunden
+          // prüft die max länge meiner Zahlen
+          if (meineZahlen.length < 7) {
+            meineZahlen.push(n); // fügt einen wert in die array
+          } else {
+            // Zahlen angabe wurde überschriten.
+            alert('angabe überschritten max 7 Werte.');
+          }
+        }
+      };
+
+      // funktiones aufrufe
+      lottoZahlenBlock(); // funktion aufrufen generiert das html
+
+      const blockLottoZahlen = document.querySelectorAll('.meineZahl');
+
+      for (let i = 0; i < blockLottoZahlen.length; i++) {
+        if (document.addEventListener) {
+          blockLottoZahlen[i].addEventListener('click', (evt) => {
+            const evtNumber = Number(evt.srcElement.textContent); // => liefert die ausgefählte zahl zurück.
+
+            if (meineZahlen.indexOf(evtNumber) !== -1 || meineZahlen.length === 7) {
+              // wurde gefunden in meiner leiste gefunden
+              evt.currentTarget.classList.remove('bg-blue-900', 'text-white'); // remove css
+              evt.currentTarget.classList.add('bg-white'); // add css
+            } else {
+              // wurde nicht in meiner liste gefunden
+              evt.currentTarget.classList.add('bg-blue-900', 'text-white'); // add css eigenschaften
+            }
+
+            addMeineZahlen(evtNumber); // => fügt die auswahl oder entfernt sie.
+
+            // prüft ob 7 zahlen gesetzt wurden
+            if (meineZahlen.length === 7) {
+              // spiel beginnt automatisch
+              lottoAuswertung();
+            }
+          });
+        }
+      }
+
+      // lotto erneut auslösen
+      buttonAction.addEventListener('click', () => {
+        if (meineZahlen.length === 7) {
+          lottoAuswertung();
+        } else {
+          alert('Ihre auswahl ist nicht vollständig.');
+        }
+      });
+
+      // eingabe löschen spiel von vorne beginnen.
+      buttonRemove.addEventListener('click', () => {
+        // löscht alle eingaben und beginnt das spiel von vorne.
+        // lauft die werte aus meiner liste durch
+        // und entfern die css eigenschaften.
+        for (let i = 0; i < meineZahlen.length; i++) {
+          //console.log(-meineZahlen[i] + '\n');
+          //console.log(blockLottoZahlen[--meineZahlen[i]]);
+          blockLottoZahlen[meineZahlen[i] - 1].classList.remove('bg-blue-900', 'text-white');
+        }
+        meineZahlen = []; // => löscht die inhalte im array.
+        simulationWrapper.classList.add('hidden'); // versteckt den Simulator Wrapper.
+      });
+
+      buttonModalOpen.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+      });
+
+      buttonModalClose.addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+
+      formSimulationEl.addEventListener('submit', (evt) => {
+        evt.preventDefault();
+
+        modal.classList.add('hidden'); // schleißt das Modal fenster.
+
+        if (meineZahlen.length < 7) {
+          alert('Bitte wählen Sie Ihre zahlen.');
+        } else {
+          let SimulationHistory = []; // hier fassen wie alle versuche auf
+          SimulationHistory['meine'] = meineZahlen;
+
+          simulationWrapper.classList.remove('hidden'); // entfernt die classe hidden
+
+          const simulationResult = document.querySelector('#simulationResult');
+          const counter = document.querySelector('input[name="versuche"]');
+          const fixNumberBlock = document.querySelector('.fixNumber');
+          let html = '';
+
+          console.log(meineZahlen);
+
+          fixNumberBlock.innerHTML = bubbleSort(meineZahlen)
+            .map((number) => {
+              return `<div class="w-16 h-16 bg-blue-900 text-white flex justify-center items-center shadow text-2xl">${number}</div>`;
+            })
+            .join(' ');
+
+          for (let i = 1; i <= Number(counter.value); i++) {
+            let tempSimulationHistory = [];
+            lottoAuswertung(); // startet die auswärtung.
+
+            html += `<div class="bg-white rounded-md p-5 shadow">
+                <h3>Treffer: ${treffer}</h3>
+                <p><span class="font-bold text-indigo-500">Gezogenen Zahlen:</span> ${bubbleSort(lottoZahlen).join()}</p>
+              </div>`;
+
+            tempSimulationHistory.push(lottoZahlen);
+            tempSimulationHistory.push(treffer);
+
+            //SimulationHistory['simulation'].push(tempSimulationHistory);
+          }
+
+          simulationResult.innerHTML = html;
+
+          //console.log(SimulationHistory);
+        }
+      });
+    </script>
+  </body>
+</html>
